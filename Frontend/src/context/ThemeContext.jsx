@@ -4,29 +4,22 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useLocalStorage('theme', 'system');
+  const [theme, setTheme] = useLocalStorage('theme', 'dark');
 
   useEffect(() => {
     const root = window.document.documentElement;
-    
     root.classList.remove('light', 'dark');
-
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      root.classList.add(systemTheme);
-      return;
-    }
-
-    root.classList.add(theme);
+    // Aurora product theme is dark-first
+    root.classList.add('dark');
   }, [theme]);
 
   const toggleTheme = () => {
-    const isDark = window.document.documentElement.classList.contains('dark');
-    setTheme(isDark ? 'light' : 'dark');
+    // Keep dark locked for this visual system; setter retained for API compat
+    setTheme('dark');
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme: 'dark', setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

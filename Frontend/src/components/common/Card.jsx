@@ -1,17 +1,25 @@
 import React from 'react';
 import { cn } from '../../utils/cn';
+import { motion } from 'framer-motion';
 
-export function Card({ className, children, ...props }) {
+export function Card({ className, children, whileHover = false, ...props }) {
   return (
-    <div className={cn("bg-white dark:bg-zinc-800 rounded-2xl border border-slate-200 dark:border-zinc-700/50 shadow-sm hover:shadow transition-shadow duration-300 overflow-hidden", className)} {...props}>
+    <motion.div
+      initial={false}
+      className={cn(
+        'overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-premium backdrop-blur-sm transition-shadow duration-200 hover:border-white/15 hover:shadow-premium-hover',
+        className
+      )}
+      {...props}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
 export function CardHeader({ className, children, ...props }) {
   return (
-    <div className={cn("px-6 py-5 border-b border-gray-50 dark:border-zinc-700/50 flex flex-col space-y-1.5", className)} {...props}>
+    <div className={cn('flex flex-col space-y-1.5 border-b border-white/5 px-6 py-5', className)} {...props}>
       {children}
     </div>
   );
@@ -19,7 +27,7 @@ export function CardHeader({ className, children, ...props }) {
 
 export function CardTitle({ className, children, ...props }) {
   return (
-    <h3 className={cn("font-semibold leading-none tracking-tight text-slate-900 dark:text-white", className)} {...props}>
+    <h3 className={cn('font-display font-semibold leading-none tracking-tight text-white', className)} {...props}>
       {children}
     </h3>
   );
@@ -27,7 +35,7 @@ export function CardTitle({ className, children, ...props }) {
 
 export function CardContent({ className, children, ...props }) {
   return (
-    <div className={cn("p-6 pt-5", className)} {...props}>
+    <div className={cn('p-6 pt-5', className)} {...props}>
       {children}
     </div>
   );
@@ -35,7 +43,7 @@ export function CardContent({ className, children, ...props }) {
 
 export function CardFooter({ className, children, ...props }) {
   return (
-    <div className={cn("px-6 py-5 bg-slate-50/50 dark:bg-zinc-900/50 border-t border-gray-50 dark:border-zinc-700/50 flex items-center", className)} {...props}>
+    <div className={cn('flex items-center border-t border-white/5 bg-white/[0.02] px-6 py-5', className)} {...props}>
       {children}
     </div>
   );

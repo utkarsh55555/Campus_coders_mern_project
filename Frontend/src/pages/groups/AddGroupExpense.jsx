@@ -210,7 +210,7 @@ export default function AddGroupExpense() {
                     </div>
                   ))}
                   {errors.splitTotal && (
-                    <p className="text-sm text-red-600 1 mt-2">{errors.splitTotal}</p>
+                    <p className="text-sm text-fuchsia-300 mt-2">{errors.splitTotal}</p>
                   )}
                 </div>
               )}

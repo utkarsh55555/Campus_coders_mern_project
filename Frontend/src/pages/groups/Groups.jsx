@@ -77,9 +77,9 @@ export default function Groups() {
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-500 dark:text-zinc-400">Your Balance</span>
                       <span className={`font-medium ${
-                        userBalance > 0 ? 'text-emerald-600 1' : 
-                        userBalance < 0 ? 'text-red-600 1' : 
-                        'text-slate-900 dark:text-white'
+                        userBalance > 0 ? 'text-cyan-300' : 
+                        userBalance < 0 ? 'text-fuchsia-300' : 
+                        'text-white'
                       }`}>
                         {userBalance > 0 ? `Gets back ${formatCurrency(userBalance)}` : 
                          userBalance < 0 ? `Owes ${formatCurrency(Math.abs(userBalance))}` : 

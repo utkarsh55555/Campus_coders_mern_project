@@ -1,0 +1,10 @@
+{
+  "name": "campus-coders-mern-project",
+  "version": "1.0.0",
+  "description": "Campus Coders MERN Project",
+  "scripts": {
+    "start": "cd Frontend && npm start",
+    "dev": "cd Frontend && npm run dev"
+  },
+  "private": true
+}

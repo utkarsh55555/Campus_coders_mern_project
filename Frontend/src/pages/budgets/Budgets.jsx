@@ -127,7 +127,7 @@ export default function Budgets() {
             return (
               <Card key={budget.id} className="relative overflow-hidden">
                 <div className={`absolute top-0 left-0 w-1 h-full ${
-                  isOver ? 'bg-red-500' : isNear ? 'bg-amber-500' : 'bg-emerald-500'
+                  isOver ? 'bg-fuchsia-500' : isNear ? 'bg-violet-400' : 'bg-cyan-400'
                 }`} />
                 <CardHeader className="pb-3 border-b-0 flex flex-row items-center justify-between pl-6">
                   <div>
@@ -143,7 +143,7 @@ export default function Budgets() {
                     </button>
                     <button 
                       onClick={() => setDeleteId(budget.id)}
-                      className="p-2 text-slate-400 1 hover:text-red-600 1 rounded-md hover:bg-slate-100"
+                      className="p-2 text-slate-400 1 hover:text-fuchsia-300 rounded-md hover:bg-fuchsia-500/10"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -157,7 +157,7 @@ export default function Budgets() {
                     </div>
                     <div className="text-right">
                       <p className={`text-sm font-medium ${
-                        isOver ? 'text-red-600 1' : isNear ? 'text-amber-600' : 'text-emerald-600 1'
+                        isOver ? 'text-fuchsia-300' : isNear ? 'text-violet-300' : 'text-cyan-300'
                       }`}>
                         {isOver ? (
                           `${formatCurrency(Math.abs(budget.remaining))} over limit`
@@ -173,7 +173,7 @@ export default function Budgets() {
                   <div className="h-2 w-full bg-slate-100 1 rounded-full overflow-hidden mt-3">
                     <div 
                       className={`h-full rounded-full ${
-                        isOver ? 'bg-red-500' : isNear ? 'bg-amber-500' : 'bg-emerald-500'
+                        isOver ? 'bg-fuchsia-500' : isNear ? 'bg-violet-400' : 'bg-cyan-400'
                       }`} 
                       style={{ width: `${Math.min(100, budget.percentage)}%` }} 
                     />

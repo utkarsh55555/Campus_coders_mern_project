@@ -185,7 +185,7 @@ export default function Transactions() {
                       </Badge>
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold text-right ${
-                      transaction.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
+                      transaction.type === 'income' ? 'text-cyan-300' : 'text-fuchsia-300'
                     }`}>
                       {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
                     </td>
@@ -198,7 +198,7 @@ export default function Transactions() {
                         </Link>
                         <button 
                           onClick={() => setDeleteId(transaction.id)}
-                          className="text-red-600 dark:text-red-400 hover:text-red-900 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                          className="rounded p-1 text-fuchsia-300 transition-colors hover:bg-fuchsia-500/10 hover:text-fuchsia-200"
                         >
                           <Trash2 size={16} />
                         </button>

@@ -124,7 +124,7 @@ export default function Profile() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">Status</p>
-                    <p className="mt-1 text-sm text-emerald-600 1 font-medium">Active</p>
+                    <p className="mt-1 text-sm text-cyan-300 font-medium">Active</p>
                   </div>
                 </div>
               </div>
@@ -135,7 +135,7 @@ export default function Profile() {
 
       <Card className="border-red-100">
         <CardHeader>
-          <CardTitle className="text-red-600 1">Danger Zone</CardTitle>
+          <CardTitle className="text-fuchsia-300">Danger Zone</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-slate-500 dark:text-zinc-400 mb-4">

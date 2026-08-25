@@ -95,8 +95,8 @@ export default function GroupDetails() {
           <CardContent className="p-6">
             <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">Your Balance</p>
             <p className={`mt-2 text-2xl font-semibold ${
-              userBalance > 0 ? 'text-emerald-600 dark:text-emerald-400' : 
-              userBalance < 0 ? 'text-red-600 dark:text-red-400' : 
+              userBalance > 0 ? 'text-cyan-300' : 
+              userBalance < 0 ? 'text-fuchsia-300' : 
               'text-slate-900 dark:text-white'
             }`}>
               {userBalance > 0 ? `+${formatCurrency(userBalance)}` : 
@@ -177,8 +177,8 @@ export default function GroupDetails() {
                         <div className="text-right">
                           <p className="text-xs text-slate-500 dark:text-zinc-400 mb-1">Your share</p>
                           <p className={`text-sm font-medium ${
-                            netForUser > 0 ? 'text-emerald-600 1' : 
-                            netForUser < 0 ? 'text-red-600 1' : 
+                            netForUser > 0 ? 'text-cyan-300' : 
+                            netForUser < 0 ? 'text-fuchsia-300' : 
                             'text-slate-900 dark:text-white'
                           }`}>
                             {netForUser > 0 ? `+${formatCurrency(netForUser)}` : 
@@ -260,8 +260,8 @@ export default function GroupDetails() {
                     <div className="ml-3">
                       <p className="text-sm font-medium text-slate-900 dark:text-white">{member.name}</p>
                       <p className={`text-xs font-medium ${
-                        bal > 0 ? 'text-emerald-600 1' : 
-                        bal < 0 ? 'text-red-600 1' : 
+                        bal > 0 ? 'text-cyan-300' : 
+                        bal < 0 ? 'text-fuchsia-300' : 
                         'text-slate-500 dark:text-zinc-400'
                       }`}>
                         {bal > 0 ? `Gets back ${formatCurrency(bal)}` : 
@@ -288,7 +288,7 @@ export default function GroupDetails() {
                   return (
                     <li key={settlement.id} className="p-4 sm:px-6">
                       <div className="flex items-center">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 1">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500/15 text-cyan-300">
                           <CheckCircle2 size={20} />
                         </div>
                         <div className="ml-4">
