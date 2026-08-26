@@ -4,7 +4,18 @@
   "description": "Campus Coders MERN Project",
   "scripts": {
     "start": "cd Frontend && npm start",
-    "dev": "cd Frontend && npm run dev"
+    "dev": "cd Frontend && npm run dev",
+    "Server": "cd Backend && npm start"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dns": "^0.2.2",
+    "dotenv": "^17.4.2",
+    "epress": "^0.0.1-security",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.4"
+  }
 }
