@@ -9,6 +9,10 @@ app.use(express.json());
 
 app.use("/api/transactions", require("./Backend/routes/transactionRoutes"));
 app.use("/api/auth", require("./Backend/routes/authRoutes"));
+app.use("/api/groups", require("./Backend/routes/groupRoutes"));
+app.use("/api/groupExpenses", require("./Backend/routes/groupExpenseRoutes"));
+app.use("/api/settlement", require("./Backend/routes/settlementRoutes"));
+app.use("/api/budgets", require("./Backend/routes/budgetRoutes"));
 
 const PORT = process.env.PORT || 5000;
 
@@ -25,6 +29,15 @@ const start = async () => {
             console.log(`GET    http://localhost:${PORT}/api/transactions/getAllTransactions`);
             console.log(`PUT    http://localhost:${PORT}/api/transactions/updateTransaction/:id`);
             console.log(`DELETE http://localhost:${PORT}/api/transactions/deleteTransaction/:id`);
+            console.log(`\n=== GROUP ENDPOINTS ===`);
+            console.log(`POST   http://localhost:${PORT}/api/groups/createGroup`);
+            console.log(`GET    http://localhost:${PORT}/api/groups/getGroups`);
+            console.log(`POST   http://localhost:${PORT}/api/groups/addMember/:id`);
+            console.log(`\n=== GROUP EXPENSE ENDPOINTS ===`);
+            console.log(`POST   http://localhost:${PORT}/api/groupExpenses/addExpense/:groupId`);
+            console.log(`GET    http://localhost:${PORT}/api/groupExpenses/getExpenses/:groupId`);
+            console.log(`\n=== SETTLEMENT ENDPOINTS ===`);
+            console.log(`GET    http://localhost:${PORT}/api/settlement/calculateSettlement/:groupId`);
             console.log(`\n=== TESTING TIPS ===`);
             console.log(`1. First register or login to get your token`);
             console.log(`2. Add token to headers: Authorization: Bearer <your-token>`);
