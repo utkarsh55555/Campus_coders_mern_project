@@ -17,8 +17,11 @@ export default function AddGroupExpense() {
   const { groups, users, addGroupExpense } = useFinance();
   const { currentUser } = useAuth();
   
-  const group = groups.find(g => g.id === groupId);
-  const groupMembers = useMemo(() => users.filter(u => group?.members.includes(u.id)), [users, group]);
+  const group = groups.find(g => g.id === groupId || g._id === groupId);
+  const groupMembers = useMemo(
+    () => users.filter(u => group?.members?.some(m => String(m) === String(u.id))),
+    [users, group]
+  );
   
   const [formData, setFormData] = useState({
     description: '',
@@ -64,7 +67,7 @@ export default function AddGroupExpense() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
     
@@ -74,28 +77,26 @@ export default function AddGroupExpense() {
     if (formData.splitType === 'equal') {
       finalSplits = calculateEqualSplit(amount, group.members);
     } else {
-      // Map customSplits to ensure numbers
       Object.keys(customSplits).forEach(id => {
         finalSplits[id] = Number(customSplits[id]);
       });
-      // Ensure all members have an entry even if 0
       group.members.forEach(id => {
         if (finalSplits[id] === undefined) finalSplits[id] = 0;
       });
     }
     
-    const newExpense = {
-      groupId,
-      description: formData.description,
-      amount,
-      date: new Date(formData.date).toISOString(),
-      paidBy: formData.paidBy,
-      splitType: formData.splitType,
-      splits: finalSplits
-    };
-    
-    addGroupExpense(newExpense);
-    navigate(`/groups/${groupId}`);
+    try {
+      await addGroupExpense({
+        groupId,
+        description: formData.description,
+        amount,
+        date: new Date(formData.date).toISOString(),
+        paidBy: formData.paidBy,
+        splitType: formData.splitType,
+        splits: finalSplits
+      });
+      navigate(`/groups/${groupId}`);
+    } catch { /* toast handled in context */ }
   };
 
   return (

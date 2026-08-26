@@ -23,7 +23,7 @@ export default function GroupDetails() {
   const [activeTab, setActiveTab] = useState('expenses');
   const [settlementToConfirm, setSettlementToConfirm] = useState(null);
 
-  const group = groups.find(g => g.id === groupId);
+  const group = groups.find(g => g.id === groupId || g._id === groupId);
   
   // If group not found, return or redirect
   if (!group) {
@@ -36,9 +36,13 @@ export default function GroupDetails() {
   }
 
   // Derived data
-  const groupMembers = users.filter(u => group.members.includes(u.id));
-  const expenses = groupExpenses.filter(e => e.groupId === groupId).sort((a, b) => new Date(b.date) - new Date(a.date));
-  const groupSettlements = settlements.filter(s => s.groupId === groupId).sort((a, b) => new Date(b.date) - new Date(a.date));
+  const groupMembers = users.filter(u => group.members?.some(m => String(m) === String(u.id)));
+  const expenses = groupExpenses
+    .filter(e => String(e.groupId) === String(groupId))
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  const groupSettlements = settlements
+    .filter(s => String(s.groupId) === String(groupId))
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
   
   const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
   

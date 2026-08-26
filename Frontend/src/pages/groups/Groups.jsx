@@ -36,8 +36,8 @@ export default function Groups() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {groups.map((group) => {
             // Filter expenses and settlements for this group
-            const groupExp = groupExpenses.filter(e => e.groupId === group.id);
-            const groupSettlements = settlements.filter(s => s.groupId === group.id);
+            const groupExp = groupExpenses.filter(e => String(e.groupId) === String(group.id));
+            const groupSettlements = settlements.filter(s => String(s.groupId) === String(group.id));
             
             // Calculate total expenses for the group
             const totalExpenses = groupExp.reduce((sum, exp) => sum + Number(exp.amount), 0);

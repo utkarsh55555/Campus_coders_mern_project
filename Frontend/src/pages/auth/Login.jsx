@@ -13,8 +13,8 @@ const fadeUp = {
 };
 
 export default function Login() {
-  const [email, setEmail] = useState('demo@example.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { login, loading } = useAuth();
   const navigate = useNavigate();

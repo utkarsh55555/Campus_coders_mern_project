@@ -36,18 +36,18 @@ export default function CreateGroup() {
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim()) return;
     
-    const newGroup = {
-      name: formData.name,
-      description: formData.description,
-      members: selectedMembers,
-    };
-    
-    addGroup(newGroup);
-    navigate('/groups');
+    try {
+      await addGroup({
+        name: formData.name,
+        description: formData.description,
+        members: selectedMembers,
+      });
+      navigate('/groups');
+    } catch { /* toast handled in context */ }
   };
 
   return (
@@ -123,7 +123,7 @@ export default function CreateGroup() {
               <Button type="button" variant="ghost" onClick={() => navigate('/groups')}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={!formData.name.trim() || selectedMembers.length < 2}>
+              <Button type="submit" disabled={!formData.name.trim()}>
                 Create Group
               </Button>
             </div>

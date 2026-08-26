@@ -67,9 +67,11 @@ export default function Transactions() {
     return result;
   }, [transactions, searchTerm, typeFilter, categoryFilter, sortBy]);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteId) {
-      deleteTransaction(deleteId);
+      try {
+        await deleteTransaction(deleteId);
+      } catch { /* toast handled in context */ }
       setDeleteId(null);
     }
   };

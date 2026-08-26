@@ -27,24 +27,25 @@ export default function Budgets() {
   // Calculate spent amounts for current month (or budget month)
   const budgetsWithProgress = useMemo(() => {
     return budgets.map(budget => {
-      // Find transactions in this budget's month and category
-      const spent = transactions
+      const spentFromTx = transactions
         .filter(t => 
           t.type === 'expense' && 
           t.category === budget.category &&
-          t.date.startsWith(budget.month)
+          String(t.date).startsWith(budget.month)
         )
         .reduce((sum, t) => sum + Number(t.amount), 0);
+      const spent = Number(budget.spent ?? spentFromTx);
+      const limit = Number(budget.amount || budget.limit || 0);
+      const remaining = limit - spent;
+      const percentage = limit > 0 ? Math.min(100, Math.round((spent / limit) * 100)) : 0;
       
-      const remaining = Number(budget.amount) - spent;
-      const percentage = Math.min(100, Math.round((spent / Number(budget.amount)) * 100));
-      
-      let status = 'normal'; // < 80%
+      let status = 'normal';
       if (percentage >= 100) status = 'over';
       else if (percentage >= 80) status = 'near';
 
       return {
         ...budget,
+        amount: limit,
         spent,
         remaining,
         percentage,
@@ -72,7 +73,7 @@ export default function Budgets() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.category || !formData.amount) return;
 
@@ -82,13 +83,14 @@ export default function Budgets() {
       month: formData.month
     };
 
-    if (editingBudget) {
-      updateBudget(editingBudget.id, budgetData);
-    } else {
-      addBudget(budgetData);
-    }
-    
-    setIsModalOpen(false);
+    try {
+      if (editingBudget) {
+        await updateBudget(editingBudget.id, budgetData);
+      } else {
+        await addBudget(budgetData);
+      }
+      setIsModalOpen(false);
+    } catch { /* toast handled in context */ }
   };
 
   const handleDelete = () => {

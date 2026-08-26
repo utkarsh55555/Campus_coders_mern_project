@@ -30,13 +30,13 @@ export default function AddTransaction() {
 
   useEffect(() => {
     if (isEditing) {
-      const transactionToEdit = transactions.find(t => t.id === id);
+      const transactionToEdit = transactions.find(t => t.id === id || t._id === id);
       if (transactionToEdit) {
         setFormData({
           ...transactionToEdit,
-          date: transactionToEdit.date.split('T')[0] // format for date input
+          date: String(transactionToEdit.date).split('T')[0]
         });
-      } else {
+      } else if (transactions.length > 0) {
         navigate('/transactions');
       }
     }
@@ -69,24 +69,24 @@ export default function AddTransaction() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     const dataToSave = {
       ...formData,
       amount: Number(formData.amount),
-      // keep full ISO date for consistency if we want
-      date: new Date(formData.date).toISOString() 
+      date: new Date(formData.date).toISOString()
     };
 
-    if (isEditing) {
-      updateTransaction(id, dataToSave);
-    } else {
-      addTransaction(dataToSave);
-    }
-    
-    navigate('/transactions');
+    try {
+      if (isEditing) {
+        await updateTransaction(id, dataToSave);
+      } else {
+        await addTransaction(dataToSave);
+      }
+      navigate('/transactions');
+    } catch { /* toast handled in context */ }
   };
 
   return (

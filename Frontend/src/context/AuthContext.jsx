@@ -1,9 +1,22 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { demoUser } from '../data/mockData';
+import { login as loginApi, register as registerApi } from '../api';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
+
+function mapUser(userData) {
+  const id = userData._id || userData.id;
+  return {
+    id,
+    _id: id,
+    name: userData.name,
+    email: userData.email,
+    avatar:
+      userData.avatar ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || 'User')}&background=0D8ABC&color=fff`,
+  };
+}
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useLocalStorage('expenseflow_user', null);
@@ -11,49 +24,48 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     setLoading(true);
-    // Simulate API call
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (email === 'demo@example.com' && password === 'password123') {
-          setCurrentUser(demoUser);
-          toast.success('Login successful!');
-          resolve(demoUser);
-        } else {
-          toast.error('Invalid credentials');
-          reject(new Error('Invalid credentials'));
-        }
-        setLoading(false);
-      }, 800);
-    });
+    try {
+      const { data } = await loginApi({ email, password });
+      localStorage.setItem('token', data.token);
+      const user = mapUser(data);
+      setCurrentUser(user);
+      toast.success('Login successful!');
+      return user;
+    } catch (error) {
+      const message = error.response?.data?.message || 'Login failed';
+      toast.error(message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const register = async (userData) => {
     setLoading(true);
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newUser = {
-          id: `u${Date.now()}`,
-          name: userData.name,
-          email: userData.email,
-          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=0D8ABC&color=fff`,
-          createdAt: new Date().toISOString()
-        };
-        setCurrentUser(newUser);
-        toast.success('Registration successful!');
-        resolve(newUser);
-        setLoading(false);
-      }, 800);
-    });
+    try {
+      const { data } = await registerApi(userData);
+      localStorage.setItem('token', data.token);
+      const user = mapUser(data);
+      setCurrentUser(user);
+      toast.success('Registration successful!');
+      return user;
+    } catch (error) {
+      const message = error.response?.data?.message || 'Registration failed';
+      toast.error(message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = () => {
+    localStorage.removeItem('token');
     setCurrentUser(null);
     toast.success('Logged out successfully');
   };
 
   const updateProfile = (updates) => {
-    setCurrentUser(prev => ({ ...prev, ...updates }));
+    setCurrentUser((prev) => ({ ...prev, ...updates }));
     toast.success('Profile updated');
   };
 
@@ -63,7 +75,7 @@ export function AuthProvider({ children }) {
     register,
     logout,
     updateProfile,
-    loading
+    loading,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
