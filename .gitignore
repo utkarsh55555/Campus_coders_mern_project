@@ -19,3 +19,6 @@ dist/
 build/
 .cache/
 coverage/
+
+# Swagger generated output
+swagger-output.json

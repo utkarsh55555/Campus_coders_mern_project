@@ -14,13 +14,16 @@ import toast from 'react-hot-toast';
 export default function AddGroupExpense() {
   const { groupId } = useParams();
   const navigate = useNavigate();
-  const { groups, users, addGroupExpense } = useFinance();
+  const { groups, allUsers, addGroupExpense } = useFinance();
   const { currentUser } = useAuth();
   
   const group = groups.find(g => g.id === groupId || g._id === groupId);
   const groupMembers = useMemo(
-    () => users.filter(u => group?.members?.some(m => String(m) === String(u.id))),
-    [users, group]
+    () =>
+      (group?.members || [])
+        .map((id) => allUsers.find((u) => String(u.id) === String(id)))
+        .filter(Boolean),
+    [allUsers, group]
   );
   
   const [formData, setFormData] = useState({

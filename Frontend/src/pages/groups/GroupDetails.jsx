@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Plus, Users as UsersIcon, Receipt, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Plus, Users as UsersIcon, Receipt, ArrowLeft, CheckCircle2, UserPlus } from 'lucide-react';
 
 import { useFinance } from '../../context/FinanceContext';
 import { useAuth } from '../../context/AuthContext';
@@ -13,19 +13,71 @@ import { Avatar } from '../../components/common/Avatar';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
+import { AddMembersModal } from '../../components/groups/AddMembersModal';
 
 export default function GroupDetails() {
   const { groupId } = useParams();
   const navigate = useNavigate();
-  const { groups, users, groupExpenses, settlements, addSettlement } = useFinance();
+  const { groups, allUsers, groupExpenses, settlements, addSettlement, addMemberToGroup, inviteUserByEmail } = useFinance();
   const { currentUser } = useAuth();
   
   const [activeTab, setActiveTab] = useState('expenses');
   const [settlementToConfirm, setSettlementToConfirm] = useState(null);
+  const [showAddMembers, setShowAddMembers] = useState(false);
 
   const group = groups.find(g => g.id === groupId || g._id === groupId);
-  
-  // If group not found, return or redirect
+
+  const groupMemberIds = useMemo(
+    () => (group?.members || []).map((m) => String(m)),
+    [group]
+  );
+
+  const groupMembers = useMemo(() => {
+    return groupMemberIds.map((id) => {
+      const user = allUsers.find((u) => String(u.id) === id);
+      if (user) return user;
+      return {
+        id,
+        name: id.startsWith('pending:') ? id.replace('pending:', '') : 'Member',
+        email: id.startsWith('pending:') ? id.replace('pending:', '') : '',
+        isPending: id.startsWith('pending:'),
+      };
+    });
+  }, [groupMemberIds, allUsers]);
+
+  const expenses = useMemo(
+    () =>
+      groupExpenses
+        .filter((e) => String(e.groupId) === String(groupId))
+        .sort((a, b) => new Date(b.date) - new Date(a.date)),
+    [groupExpenses, groupId]
+  );
+
+  const groupSettlements = useMemo(
+    () =>
+      settlements
+        .filter((s) => String(s.groupId) === String(groupId))
+        .sort((a, b) => new Date(b.date) - new Date(a.date)),
+    [settlements, groupId]
+  );
+
+  const totalExpenses = useMemo(
+    () => expenses.reduce((sum, e) => sum + Number(e.amount), 0),
+    [expenses]
+  );
+
+  const balances = useMemo(
+    () => calculateBalances(expenses, groupSettlements, group?.members || []),
+    [expenses, groupSettlements, group]
+  );
+
+  const simplifiedSettlements = useMemo(
+    () => calculateSettlements(balances),
+    [balances]
+  );
+
+  const userBalance = currentUser ? balances[currentUser.id] || 0 : 0;
+
   if (!group) {
     return (
       <div className="text-center py-12">
@@ -34,23 +86,6 @@ export default function GroupDetails() {
       </div>
     );
   }
-
-  // Derived data
-  const groupMembers = users.filter(u => group.members?.some(m => String(m) === String(u.id)));
-  const expenses = groupExpenses
-    .filter(e => String(e.groupId) === String(groupId))
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
-  const groupSettlements = settlements
-    .filter(s => String(s.groupId) === String(groupId))
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
-  
-  const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
-  
-  // Balances logic
-  const balances = useMemo(() => calculateBalances(expenses, groupSettlements, group.members), [expenses, groupSettlements, group.members]);
-  const simplifiedSettlements = useMemo(() => calculateSettlements(balances), [balances]);
-
-  const userBalance = currentUser ? balances[currentUser.id] || 0 : 0;
   
   // Handlers
   const handleSettle = () => {
@@ -65,7 +100,7 @@ export default function GroupDetails() {
     }
   };
 
-  const getUser = (id) => users.find(u => u.id === id);
+  const getUser = (id) => allUsers.find((u) => String(u.id) === String(id));
 
   return (
     <div className="space-y-6">
@@ -114,17 +149,29 @@ export default function GroupDetails() {
         </Card>
         <Card>
           <CardContent className="p-6">
-            <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">Members</p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">Members</p>
+              <button
+                type="button"
+                onClick={() => setShowAddMembers(true)}
+                className="text-xs font-medium text-violet-400 hover:text-violet-300"
+              >
+                + Add
+              </button>
+            </div>
             <div className="mt-3 flex -space-x-2 overflow-hidden">
-              {groupMembers.map(member => (
-                <Avatar 
-                  key={member.id} 
-                  src={member.avatar} 
-                  name={member.name} 
-                  className="inline-block border-2 border-white" 
+              {groupMembers.map((member) => (
+                <Avatar
+                  key={member.id}
+                  src={member.avatar}
+                  name={member.name}
+                  className="inline-block border-2 border-white"
                 />
               ))}
             </div>
+            <p className="mt-2 text-xs text-slate-500 dark:text-zinc-400">
+              {groupMembers.length} member{groupMembers.length !== 1 ? 's' : ''}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -132,7 +179,7 @@ export default function GroupDetails() {
       {/* Tabs */}
       <div className="border-b border-slate-200 dark:border-zinc-700">
         <nav className="-mb-px flex space-x-8">
-          {['expenses', 'balances', 'settlements'].map((tab) => (
+          {['expenses', 'balances', 'members', 'settlements'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -160,7 +207,7 @@ export default function GroupDetails() {
                 {expenses.map((expense) => {
                   const paidByUser = getUser(expense.paidBy);
                   // Did current user participate in this expense?
-                  const userShare = expense.splits[currentUser?.id] || 0;
+                  const userShare = expense.splits?.[currentUser?.id] ?? 0;
                   const userPaid = expense.paidBy === currentUser?.id ? expense.amount : 0;
                   const netForUser = userPaid - userShare;
                   
@@ -280,6 +327,56 @@ export default function GroupDetails() {
           </div>
         )}
         
+        {/* MEMBERS TAB */}
+        {activeTab === 'members' && (
+          <div className="p-4 sm:p-6">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-lg font-medium text-slate-900 dark:text-white">Group Members</h3>
+                <p className="text-sm text-slate-500 dark:text-zinc-400">
+                  People in this group for splitting expenses
+                </p>
+              </div>
+              <Button className="gap-2" onClick={() => setShowAddMembers(true)}>
+                <UserPlus size={16} /> Add Members
+              </Button>
+            </div>
+
+            {groupMembers.length > 0 ? (
+              <ul className="divide-y divide-slate-200 dark:divide-zinc-700">
+                {groupMembers.map((member) => (
+                  <li key={member.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
+                    <Avatar src={member.avatar} name={member.name} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">
+                        {member.name}
+                        {member.id === currentUser?.id && (
+                          <span className="ml-2 text-xs text-violet-400">(You)</span>
+                        )}
+                      </p>
+                      <p className="truncate text-xs text-slate-500 dark:text-zinc-400">
+                        {member.email || 'No email'}
+                        {member.isPending && ' · Pending invite'}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyState
+                icon={UsersIcon}
+                title="No members yet"
+                description="Add people to start splitting expenses together."
+                action={
+                  <Button className="gap-2" onClick={() => setShowAddMembers(true)}>
+                    <UserPlus size={16} /> Add Members
+                  </Button>
+                }
+              />
+            )}
+          </div>
+        )}
+
         {/* SETTLEMENTS TAB */}
         {activeTab === 'settlements' && (
           <div>
@@ -326,6 +423,17 @@ export default function GroupDetails() {
         title="Record Settlement"
         message={settlementToConfirm ? `Record a payment of ${formatCurrency(settlementToConfirm.amount)} from ${getUser(settlementToConfirm.from)?.name} to ${getUser(settlementToConfirm.to)?.name}?` : ''}
         confirmText="Mark as Settled"
+      />
+
+      <AddMembersModal
+        isOpen={showAddMembers}
+        onClose={() => setShowAddMembers(false)}
+        groupName={group.name}
+        existingMemberIds={groupMemberIds}
+        allUsers={allUsers}
+        lockedIds={[currentUser?.id].filter(Boolean)}
+        onInviteByEmail={inviteUserByEmail}
+        onAddMembers={(memberIds) => addMemberToGroup(groupId, memberIds)}
       />
     </div>
   );

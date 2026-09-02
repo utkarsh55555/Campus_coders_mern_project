@@ -5,6 +5,12 @@ import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
+const isNetworkError = (error) =>
+  !error?.response &&
+  (error?.code === 'ERR_NETWORK' ||
+    error?.code === 'ECONNABORTED' ||
+    error?.message?.includes('Network Error'));
+
 function mapUser(userData) {
   const id = userData._id || userData.id;
   return {
@@ -32,7 +38,9 @@ export function AuthProvider({ children }) {
       toast.success('Login successful!');
       return user;
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      const message = isNetworkError(error)
+        ? "Can't reach the server. Make sure the backend is running (npm start from project root)."
+        : error.response?.data?.message || 'Login failed';
       toast.error(message);
       throw error;
     } finally {
@@ -50,7 +58,9 @@ export function AuthProvider({ children }) {
       toast.success('Registration successful!');
       return user;
     } catch (error) {
-      const message = error.response?.data?.message || 'Registration failed';
+      const message = isNetworkError(error)
+        ? "Can't reach the server. Make sure the backend is running (npm start from project root)."
+        : error.response?.data?.message || 'Registration failed';
       toast.error(message);
       throw error;
     } finally {

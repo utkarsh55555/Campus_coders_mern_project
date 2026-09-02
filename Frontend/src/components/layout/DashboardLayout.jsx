@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { useAuth } from '../../context/AuthContext';
+import { useFinance } from '../../context/FinanceContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function DashboardLayout() {
   const { currentUser } = useAuth();
+  const { refresh } = useFinance();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    refresh().catch(() => {
+      /* toast handled in FinanceContext */
+    });
+  }, [refresh]);
 
   if (!currentUser) {
     return <Navigate to="/login" state={{ from: location }} replace />;

@@ -3,9 +3,22 @@ require("dotenv").config();
 const connectDB = require("./Backend/config/db");
 const express = require("express");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const fs = require("fs");
+const path = require("path");
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const swaggerFilePath = path.join(__dirname, "swagger-output.json");
+if (fs.existsSync(swaggerFilePath)) {
+    const swaggerDocument = require(swaggerFilePath);
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+} else {
+    console.warn(
+        "swagger-output.json not found. Run `npm run swagger` to generate API documentation."
+    );
+}
 
 app.use("/api/transactions", require("./Backend/routes/transactionRoutes"));
 app.use("/api/auth", require("./Backend/routes/authRoutes"));
@@ -21,6 +34,9 @@ const start = async () => {
         await connectDB();
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
+            if (fs.existsSync(swaggerFilePath)) {
+                console.log(`Swagger UI: http://localhost:${PORT}/api-docs`);
+            }
             console.log(`\n=== AUTH ENDPOINTS ===`);
             console.log(`POST   http://localhost:${PORT}/api/auth/login`);
             console.log(`POST   http://localhost:${PORT}/api/auth/register`);
