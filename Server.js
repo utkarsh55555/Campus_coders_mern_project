@@ -32,6 +32,9 @@ const PORT = process.env.PORT || 5000;
 const start = async () => {
     try {
         await connectDB();
+        if (process.env.VERCEL) {
+            return;
+        }
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
             if (fs.existsSync(swaggerFilePath)) {
@@ -56,7 +59,7 @@ const start = async () => {
             console.log(`GET    http://localhost:${PORT}/api/settlement/calculateSettlement/:groupId`);
             console.log(`\n=== TESTING TIPS ===`);
             console.log(`1. First register or login to get your token`);
-            console.log(`2. Add token to headers: Authorization: Bearer <your-token>`);
+            console.log(`2. Add token to headers: Authorization: Bearer YOUR_TOKEN`);
             console.log(`3. Then use transaction endpoints`);
         });
     } catch (error) {
@@ -66,3 +69,5 @@ const start = async () => {
 };
 
 start();
+
+module.exports = app;

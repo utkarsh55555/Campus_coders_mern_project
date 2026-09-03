@@ -2,7 +2,9 @@ import axios from 'axios';
 
 // For now, this is a stub since we are using local storage and mock data.
 // Later, replace VITE_API_URL with your actual backend URL.
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
 
 const api = axios.create({
   baseURL: API_URL,
